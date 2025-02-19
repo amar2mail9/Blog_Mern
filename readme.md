@@ -1,5 +1,8 @@
 <!-- Admin and user signUp and sign in completed -->
 
+every Operation Using Admin Auth Bearer Token <br />
+POST DELETE PUT
+
 # Blog_Mern
 
 <h2>User Sign Up METHOD (POST) </h2>
