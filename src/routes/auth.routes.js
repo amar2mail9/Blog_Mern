@@ -4,13 +4,13 @@ import {
   registerUser,
   login,
 } from "../controllers/user.controller.js";
-import { upload } from "../middleware/avatar.upload.js";
+// import { upload } from "../middleware/avatar.upload.js";
 
 export const authRouter = express.Router();
 
 // new user
 authRouter.post("/signup", registerUser);
-authRouter.post("/signup/admin", upload.single("photo"), adminSignUp);
+authRouter.post("/signup/admin", adminSignUp);
 
 // login user
 authRouter.post("/", login);

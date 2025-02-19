@@ -1,13 +1,13 @@
 import { Blog } from "../models/blog.models.js";
 import { User } from "../models/user.model.js";
-import fs from "fs";
+// import fs from "fs";
 
-import { v2 as cloudinary } from "cloudinary";
+// import { v2 as cloudinary } from "cloudinary";
 
 // create blog
 export const createBlog = async (req, res) => {
   const { title, category, content } = req.body;
-  const file = req?.file?.path;
+  // const file = req?.file?.path;
 
   if (!title) {
     return res.status(400).send({
@@ -15,6 +15,7 @@ export const createBlog = async (req, res) => {
       message: "All Field Are required",
     });
   }
+  console.log({ title, category, content });
 
   if (req.user.userId && req.user.role === "admin") {
     const blog = await Blog.findOne({ title });
@@ -25,16 +26,16 @@ export const createBlog = async (req, res) => {
         message: "Blog Already Exist",
       });
     }
-    const imageBlog = await cloudinary.uploader.upload(file, {
-      folder: "Blog Image",
-    });
+    // const imageBlog = await cloudinary.uploader.upload(file, {
+    //   folder: "Blog Image",
+    // });
 
     const newBlog = new Blog({
       title,
       category: category?.toLowerCase() || "Uncategorized",
       author: req.user.userId,
       content,
-      image: imageBlog.secure_url,
+      // image: imageBlog.secure_url,
     });
 
     const user = await User.findById(req.user.userId);
@@ -49,12 +50,12 @@ export const createBlog = async (req, res) => {
 
     user.blogs.push(newBlog);
     await user.save();
-    fs.unlink(file, (err) => {
-      if (err) {
-        console.log(err);
-      }
-      console.log(file, "Deleted Successfully");
-    });
+    // fs.unlink(file, (err) => {
+    //   if (err) {
+    //     console.log(err);
+    //   }
+    //   console.log(file, "Deleted Successfully");
+    // });
 
     return res.status(201).send({
       success: true,

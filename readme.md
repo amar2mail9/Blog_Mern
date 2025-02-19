@@ -11,7 +11,14 @@ POST DELETE PUT
 https://blog-mern-7vj1.onrender.com/v1/auth/signup
 ```
 
-<img src="./public/usersignup.png"/>
+```json
+{
+  "name": "Amar Kumar",
+  "email": "amar@gmail.com",
+  "password": "Asdf@123",
+  "phone": "9608553167"
+}
+```
 
 <!-- Admin SignUp -->
 <h2 >Admin SignUp METHOD (POST)</h2>
@@ -20,7 +27,14 @@ https://blog-mern-7vj1.onrender.com/v1/auth/signup
 https://blog-mern-7vj1.onrender.com/v1/auth/signup/admin
 ```
 
-<img src="./public/adminsignup.png"/>
+```json
+{
+  "name": "Amar Kumar",
+  "email": "amar@gmail.com",
+  "password": "Asdf@123",
+  "phone": "9608553167"
+}
+```
 
 <!-- login routes -->
 <h2>Login Routes METHOD (POST)</h2>
@@ -42,7 +56,13 @@ https://blog-mern-7vj1.onrender.com/v1/auth/signup
 https://blog-mern-7vj1.onrender.com/v1/blog/create
 ```
 
-<img src='./public/createblog.png'>
+```json
+{
+  "title": "Welcome WOlrd",
+  "content": "Welcome Lorem as dah ad r as c",
+  "category": "Block Cahin"
+}
+```
 
 <h2>Fetch All blog METHOD (GET)</h2>
 

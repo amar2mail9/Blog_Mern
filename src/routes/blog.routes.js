@@ -9,7 +9,7 @@ import {
   singleBlogDelete,
 } from "../controllers/blog.controller.js";
 import { verifyAdmin } from "../middleware/admin.middleware.js";
-import { upload } from "../middleware/avatar.upload.js";
+// import { upload } from "../middleware/avatar.upload.js";
 
 const blogRoutes = express.Router();
 
@@ -17,7 +17,7 @@ blogRoutes.post(
   "/blog/create",
   verifyToken,
   verifyAdmin,
-  upload.single("image"),
+  // upload.single("image"),
   createBlog
 );
 
