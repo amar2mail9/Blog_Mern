@@ -1,21 +1,18 @@
 import express from "express";
 import {
-  adminLoginControllers,
-  adminRegister,
-  UserLoginControllers,
-  userRegister,
+  adminSignUp,
+  registerUser,
+  login,
 } from "../controllers/user.controller.js";
+import { upload } from "../middleware/avatar.upload.js";
 
 export const authRouter = express.Router();
 
 // new user
-authRouter.post("/signup", userRegister);
-
-// new admin
-authRouter.post("/new/admin", adminRegister);
+authRouter.post("/signup", registerUser);
+authRouter.post("/signup/admin", upload.single("photo"), adminSignUp);
 
 // login user
-authRouter.post("/user", UserLoginControllers);
+authRouter.post("/", login);
 
-// login admin
-authRouter.post("/admin", adminLoginControllers);
+// blog create

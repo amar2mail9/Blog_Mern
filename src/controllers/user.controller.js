@@ -1,340 +1,185 @@
-import dotenv from "dotenv";
-dotenv.config();
-
 import { User } from "../models/user.model.js";
 import bcrypt from "bcrypt";
+import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
+import { v2 as cloudinary } from "cloudinary";
+import fs from "fs";
 
-// create new users
-export const userRegister = async (req, res) => {
-  const { name, password, email, photo, phone, role } = req.body;
+dotenv.config();
 
-  // Check if email is provided
-  if (!email) {
-    return res.status(400).send({
-      success: false,
-      message: "Email is required",
-    });
-  }
-
-  // Check if name is provided
-  if (!name) {
-    return res.status(400).send({
-      success: false,
-      message: "Name is required",
-    });
-  }
-
-  // Check if password is provided
-  if (!password) {
-    return res.status(400).send({
-      success: false,
-      message: "Password is required",
-    });
-  }
-
-  // Check if password length is sufficient
-  if (password.length < 8) {
-    return res.status(400).send({
-      success: false,
-      message: "Password must be at least 8 characters",
-    });
-  }
-
-  // Check if phone is provided
-  if (!phone) {
-    return res.status(400).send({
-      success: false,
-      message: "Phone number is required",
-    });
-  }
-
-  // Check if photo is provided
-  if (!photo) {
-    return res.status(400).send({
-      success: false,
-      message: "Photo is required",
-    });
-  }
-
-  // Check if user with the same email or phone already exists
+// create user
+export const registerUser = async (req, res) => {
+  const { email, phone, password, name } = req.body;
   const user = await User.findOne({ email });
-  const phoneNum = await User.findOne({ phone });
 
-  if (!user && !phoneNum) {
-    // Hash the password before saving
-    const hashPassword = await bcrypt.hash(password, 10); // Use `bcrypt.hash` instead of `bcrypt.hashSync` for async consistency
-
-    // Save the new user to the database
-    await User({
-      name,
-      password: hashPassword,
-      email,
-      photo,
-      phone,
-      role, // Make sure `role` is being validated, e.g., it should be either 'user' or 'admin'
-    }).save();
-
-    return res.status(201).send({
-      success: true,
-      message: "Sign Up Successfully",
-      data: {
-        name,
-        email,
-        photo,
-        phone,
-        role,
-      },
+  if (!email || !phone || !password || !name) {
+    return res.status(400).send({
+      success: false,
+      message: "All Field are required",
     });
-  } else {
-    // If user already exists by email
-    if (user) {
-      return res.status(409).send({
-        success: false,
-        message: "User Already Exists with this Email", // Fixed extra space in the message
-      });
-    }
+  }
 
-    // If user already exists by phone
-    if (phoneNum) {
-      return res.status(409).send({
+  try {
+    if (user) {
+      return res.status(409).json({
         success: false,
-        message: "User Already Exists with this Phone", // Fixed extra space in the message
+        message: "User Already Exist",
+      });
+    } else {
+      const hashPassword = await bcrypt.hash(password, 10);
+      const newUser = User({
+        name,
+        phone,
+        email,
+        password: hashPassword,
+      });
+
+      await newUser.save();
+      return res.status(201).send({
+        success: true,
+        message: "Registration Successfully",
+        data: {
+          email,
+          phone,
+          name,
+          role: newUser.role,
+        },
       });
     }
+  } catch (err) {
+    return res.status(500).send({
+      success: false,
+      message: err,
+    });
   }
 };
 
-// create new admin
-export const adminRegister = async (req, res) => {
-  const { name, password, email, photo, phone, role } = req.body;
-
-  // Check if email is provided
-  if (!email) {
-    return res.status(400).send({
-      success: false,
-      message: "Email is required",
-    });
-  }
-
-  // Check if name is provided
-  if (!name) {
-    return res.status(400).send({
-      success: false,
-      message: "Name is required",
-    });
-  }
-
-  // Check if password is provided
-  if (!password) {
-    return res.status(400).send({
-      success: false,
-      message: "Password is required",
-    });
-  }
-
-  // Check if password length is sufficient
-  if (password.length < 8) {
-    return res.status(400).send({
-      success: false,
-      message: "Password must be at least 8 characters",
-    });
-  }
-
-  // Check if phone is provided
-  if (!phone) {
-    return res.status(400).send({
-      success: false,
-      message: "Phone number is required",
-    });
-  }
-
-  // Check if photo is provided
-  if (!photo) {
-    return res.status(400).send({
-      success: false,
-      message: "Photo is required",
-    });
-  }
-
-  // Check if user with the same email or phone already exists
+// create Admin
+export const adminSignUp = async (req, res) => {
+  const { email, phone, password, name } = req.body;
   const user = await User.findOne({ email });
-  const phoneNum = await User.findOne({ phone });
 
-  if (!user && !phoneNum) {
-    // Hash the password before saving
-    const hashPassword = await bcrypt.hash(password, 10); // Use `bcrypt.hash` instead of `bcrypt.hashSync` for async consistency
-
-    // Save the new admin to the database
-    await User({
-      name,
-      password: hashPassword,
-      email,
-      photo,
-      phone,
-      role: "admin", // Assign the role 'admin'
-    }).save();
-
-    return res.status(201).send({
-      success: true,
-      message: "Admin Sign Up Successfully",
-      data: {
-        name,
-        email,
-        photo,
-        phone,
-        role: "admin", // Ensure role is set to admin
-      },
+  let file = req?.file?.path || "No Image";
+  if (!file) {
+    return res.status.json({
+      success: false,
+      message: "Image is required",
     });
-  } else {
-    // If admin already exists by email
-    if (user) {
-      return res.status(409).send({
-        success: false,
-        message: "Admin Already Exists with this Email", // Fixed extra space in the message
-      });
-    }
+  }
 
-    // If admin already exists by phone
-    if (phoneNum) {
-      return res.status(409).send({
+  if (!email || !phone || !password || !name) {
+    return res.status(400).send({
+      success: false,
+      message: "All Field are required",
+    });
+  }
+
+  try {
+    if (user) {
+      return res.status(409).json({
         success: false,
-        message: "Admin Already Exists with this Phone", // Fixed extra space in the message
+        message: "User Already Exist",
+      });
+    } else {
+      const imgCloud = await cloudinary.uploader.upload(file);
+
+      const hashPassword = await bcrypt.hash(password, 10);
+      const newUser = User({
+        name,
+        phone,
+        email,
+        password: hashPassword,
+        role: "admin",
+        avatar: imgCloud?.secure_url,
+      });
+
+      await newUser.save();
+      if (newUser) {
+        fs.unlink(file, (err) => {
+          if (err) {
+            console.log(err);
+          }
+          console.log(file, "Deleted");
+        });
+      }
+      return res.status(201).send({
+        success: true,
+        message: "Registration Successfully",
+        data: {
+          email,
+          phone,
+          name,
+          role: newUser.role,
+          avatar: imgCloud?.secure_url,
+        },
       });
     }
+  } catch (err) {
+    return res.status(500).send({
+      success: false,
+      message: err,
+    });
   }
 };
 
 // login user
-export const UserLoginControllers = async (req, res) => {
+export const login = async (req, res) => {
   const { email, password } = req.body;
+  const user = await User.findOne({ email: email });
 
-  // Check if email is provided
-  if (!email) {
+  if ((!email, !password)) {
     return res.status(400).send({
       success: false,
-      message: "Email is required",
+      message: "All Field are required",
     });
   }
+  try {
+    if (!user) {
+      return res.status(404).send({
+        success: false,
+        message: "User Not Found",
+      });
+    } else {
+      const isPassword = await bcrypt.compare(password, user.password);
 
-  // Check if password is provided
-  if (!password) {
-    return res.status(400).send({
-      success: false,
-      message: "Password is required",
-    });
-  }
-
-  // Check if password length is sufficient
-  if (password.length < 8) {
-    return res.status(400).send({
-      success: false,
-      message: "Password must be at least 8 characters",
-    });
-  }
-
-  // Check if user exists
-  const user = await User.findOne({ email });
-
-  if (user) {
-    // Compare the provided password with the hashed password
-    const isMatchPassword = await bcrypt.compare(password, user.password);
-
-    if (isMatchPassword) {
-      // Generate a JWT token
       const token = jwt.sign(
-        { userId: user._id }, // Use `_id`, not `__id`
+        { userId: user._id, email: user.email, role: user.role },
         process.env.SECRET_KEY,
         {
-          expiresIn: "1h", // Set token expiration time
+          expiresIn: "1d",
         }
       );
 
-      return res.status(200).send({
-        success: true,
-        message: "Login Successfully",
-        token,
-      });
-    } else {
-      return res.status(400).send({
-        success: false,
-        message: "Invalid email or password", // Incorrect login details
-      });
+      if (!isPassword) {
+        return res.status(400).send({
+          success: false,
+          message: "Invalid Email or password",
+        });
+      } else {
+        return res.status(200).send({
+          success: true,
+          message: "Login Successful",
+          token,
+          role: user.role,
+        });
+      }
     }
-  } else {
-    return res.status(404).send({
+  } catch (error) {
+    return res.status(500).send({
       success: false,
-      message: "User Not Found", // User doesn't exist
+      message: err,
     });
   }
 };
 
-// logina admin
-export const adminLoginControllers = async (req, res) => {
-  const { email, password } = req.body;
+// get all user
+const allUser = async (req, res) => {};
 
-  // Check if email is provided
-  if (!email) {
-    return res.status(400).send({
-      success: false,
-      message: "Email is required",
-    });
-  }
+// delete user
+const deleteUser = async (req, res) => {};
 
-  // Check if password is provided
-  if (!password) {
-    return res.status(400).send({
-      success: false,
-      message: "Password is required",
-    });
-  }
+// forget password
+const forgetPassword = async (req, res) => {};
 
-  // Check if password length is sufficient
-  if (password.length < 8) {
-    return res.status(400).send({
-      success: false,
-      message: "Password must be at least 8 characters",
-    });
-  }
-
-  // Check if user exists
-  const user = await User.findOne({ email });
-
-  if (user) {
-    if (user.role !== "admin") {
-      return res.status(403).send({
-        success: true,
-        message: "You are not Admin ",
-      });
-    }
-
-    // Compare the provided password with the hashed password
-    const isMatchPassword = await bcrypt.compare(password, user.password);
-    if (isMatchPassword && user.role === "admin") {
-      // Generate a JWT token
-      const token = jwt.sign(
-        { userId: user._id }, // Use `_id`, not `__id`
-        process.env.SECRET_KEY,
-        {
-          expiresIn: "1h", // Set token expiration time
-        }
-      );
-
-      return res.status(200).send({
-        success: true,
-        message: "Admin Login Successfully ",
-        token,
-      });
-    } else {
-      return res.status(400).send({
-        success: false,
-        message: "Invalid email or password", // Incorrect login details
-      });
-    }
-  } else {
-    return res.status(404).send({
-      success: false,
-      message: "User Not Found", // User doesn't exist
-    });
-  }
-};
+// updateUser
+const updateUserData = async (req, res) => {};

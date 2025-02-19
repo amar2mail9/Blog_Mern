@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
-import validator from "validator";
+const emailRegex =
+  /^(([^<>()\[\]\.,;:\s@"]+(\.[^<>()\[\]\.,;:\s@"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
 const userSchema = new mongoose.Schema(
   {
@@ -7,20 +8,17 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+
     email: {
       type: String,
       required: true,
-      validate: [validator.isEmail, "Please Enter a valid email"],
       unique: true,
       lowercase: true,
+      match: [emailRegex, "Please provide a valid email address"],
     },
-    photo: {
-      type: String,
-      required: true,
-    },
+
     role: {
       type: String,
-
       enum: ["user", "admin"],
       default: "user",
     },
@@ -28,13 +26,24 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
-      selected: false,
       minlength: 8,
     },
+
     phone: {
       type: String,
       required: true,
       unique: true,
+    },
+
+    blogs: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Blog",
+      },
+    ],
+
+    avatar: {
+      type: String,
     },
   },
   { timestamps: true }
