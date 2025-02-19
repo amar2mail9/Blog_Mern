@@ -59,7 +59,7 @@ export const adminSignUp = async (req, res) => {
   const { email, phone, password, name } = req.body;
   const user = await User.findOne({ email });
 
-  let file = req?.file?.path || "No Image";
+  let file = req?.file?.path;
   if (!file) {
     return res.status.json({
       success: false,
