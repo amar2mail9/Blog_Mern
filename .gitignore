@@ -1,4 +1,40 @@
-/node_modules
-/package-lock.json
-/.env
+# Node.js dependencies
+node_modules/
+npm-debug.log
+yarn-error.log
+.env
 
+# Build files
+/build/
+/dist/
+/.next/  # If using Next.js
+
+# Logs & Debugging
+logs/
+*.log
+*.gz
+
+# Database
+mongodb/
+*.sqlite
+*.sqlite-journal
+*.realm
+
+# OS/Editor-specific files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Git-related
+.git/
+.gitignore
+
+# Package lock files (if using Yarn, remove package-lock.json)
+package-lock.json
+yarn.lock
+
+# React & Frontend Builds
+/public/build/
+coverage/
