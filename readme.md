@@ -29,6 +29,13 @@ https://blog-mern-7vj1.onrender.com/v1/auth/signup/admin
 https://blog-mern-7vj1.onrender.com/v1/auth/signup
 ```
 
+```js
+{
+    "email":"amar47kumar47@gmail.com",
+    "password":"123456789"
+}
+```
+
 <h2>Create Blog Routes METHOD (POST)</h2>
 
 ```
