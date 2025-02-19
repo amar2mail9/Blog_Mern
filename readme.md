@@ -8,7 +8,7 @@ POST DELETE PUT
 <h2>User Sign Up METHOD (POST) </h2>
 
 ```
-https://blog-mern-7vj1.onrender.com/v1/auth/signup/
+https://blog-mern-7vj1.onrender.com/v1/auth/signup
 ```
 
 <img src="./public/usersignup.png"/>
